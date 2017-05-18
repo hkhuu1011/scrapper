@@ -1,10 +1,11 @@
  // Dependencies
 var express = require("express");
 var bodyParser = require("body-parser");
+var logger = require("morgan");
 var mongoose = require("mongoose");
 // Requiring our Note and Article models
-var note = require("./models/note.js");
-var article = require("./models/article.js");
+var notes = require("./models/notes.js");
+var articles = require("./models/articles.js");
 // Our scraping tools
 var request = require("request");
 var cheerio = require("cheerio"); 
@@ -84,7 +85,7 @@ app.get("/scrape", function(req, res) {
 // This will get the articles we scraped from the mongoDB
 app.get("/articles", function(req, res) {
   // Grab every doc in the Articles array
-  article.find({}, function(error, doc) {
+  articles.find({}, function(error, doc) {
     // Log any errors
     if (error) {
       console.log(error);
@@ -99,7 +100,7 @@ app.get("/articles", function(req, res) {
 // Grab an article by it's ObjectId
 app.get("/articles/:id", function(req, res) {
   // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-  article.findOne({ "_id": req.params.id })
+  articles.findOne({ "_id": req.params.id })
   // ..and populate all of the notes associated with it
   .populate("note")
   // now, execute our query
@@ -129,7 +130,7 @@ app.post("/articles/:id", function(req, res) {
     // Otherwise
     else {
       // Use the article id to find and update it's note
-      article.findOneAndUpdate({ "_id": req.params.id }, { "note": doc._id })
+      articles.findOneAndUpdate({ "_id": req.params.id }, { "note": doc._id })
       // Execute the above query
       .exec(function(err, doc) {
         // Log any errors
