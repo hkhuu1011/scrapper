@@ -4,8 +4,8 @@ var bodyParser = require("body-parser");
 var logger = require("morgan");
 var mongoose = require("mongoose");
 // Requiring our Note and Article models
-var notes = require("./models/notes.js");
-var articles = require("./models/articles.js");
+var note = require("./models/note.js");
+var article = require("./models/article.js");
 // Our scraping tools
 var request = require("request");
 var cheerio = require("cheerio"); 
@@ -28,8 +28,9 @@ app.use(bodyParser.urlencoded({
 app.use(express.static("public"));
 
 // Database configuration with mongoose
-mongoose.connect("mongodb://heroku_9tq7nf39:nr77kn3nlcsk6p68pqe0ue4q1s@ds143181.mlab.com:43181/heroku_9tq7nf39");
+mongoose.connect("mongodb://localhost/voguearticles");
 var db = mongoose.connection;
+// mongodb://heroku_9tq7nf39:nr77kn3nlcsk6p68pqe0ue4q1s@ds143181.mlab.com:43181/heroku_9tq7nf39
 
 // Show any mongoose errors
 db.on("error", function(error) {
@@ -62,7 +63,7 @@ app.get("/scrape", function(req, res) {
 
       // Using our Article model, create a new entry
       // This effectively passes the result object to the entry (and the title and link)
-      var entry = new Article(result);
+      var entry = new article(result);
 
       // Now, save that entry to the db
       entry.save(function(err, doc) {
@@ -83,9 +84,9 @@ app.get("/scrape", function(req, res) {
 });
 
 // This will get the articles we scraped from the mongoDB
-app.get("/articles", function(req, res) {
+app.get("/article", function(req, res) {
   // Grab every doc in the Articles array
-  articles.find({}, function(error, doc) {
+  article.find({}, function(error, doc) {
     // Log any errors
     if (error) {
       console.log(error);
@@ -98,9 +99,9 @@ app.get("/articles", function(req, res) {
 });
 
 // Grab an article by it's ObjectId
-app.get("/articles/:id", function(req, res) {
+app.get("/article/:id", function(req, res) {
   // Using the id passed in the id parameter, prepare a query that finds the matching one in our db...
-  articles.findOne({ "_id": req.params.id })
+  article.findOne({ "_id": req.params.id })
   // ..and populate all of the notes associated with it
   .populate("note")
   // now, execute our query
@@ -117,9 +118,9 @@ app.get("/articles/:id", function(req, res) {
 });
 
 // Create a new note or replace an existing note
-app.post("/articles/:id", function(req, res) {
+app.post("/article/:id", function(req, res) {
   // Create a new note and pass the req.body to the entry
-  var newNote = new Note(req.body);
+  var newNote = new note(req.body);
 
   // And save the new note the db
   newNote.save(function(error, doc) {
@@ -130,7 +131,7 @@ app.post("/articles/:id", function(req, res) {
     // Otherwise
     else {
       // Use the article id to find and update it's note
-      articles.findOneAndUpdate({ "_id": req.params.id }, { "note": doc._id })
+      article.findOneAndUpdate({ "_id": req.params.id }, { "note": doc._id })
       // Execute the above query
       .exec(function(err, doc) {
         // Log any errors
