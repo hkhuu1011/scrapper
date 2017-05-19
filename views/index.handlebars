@@ -1,10 +1,21 @@
 <div id="wrapper">
-      <h1>Note Scraper</h1>
-      <h2><i>Vogue Articles</i></h2>
-      <div id="articles">
-      {{each articles}}
-      {{/each}}
-      </div>
-      <div id="notes"></div>
+    <h1>Note Scraper</h1>
+   		<h2><i>Vogue Articles</i></h2>
+
+    <div id="wrapper">
+		<div class="articles">
+	      	{{#each articles}}
+		      	<strong><p>{{this.title}}</p></strong>
+	      	<p>{{this.link}}</p>
+	      	<hr>
+			{{/each}}
+	    </div>
+
+      	<div id="notes">
+
+
+      	</div>
+
+
     </div>
 
