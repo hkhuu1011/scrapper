@@ -11,17 +11,6 @@ var cheerio = require("cheerio");
 // Set mongoose to leverage built in JavaScript ES6 Promises
 mongoose.Promise = Promise;
 
-// Set Handlebars
-var exphbs = require("express-handlebars");
-var Handlebars = require("handlebars");
-
-Handlebars.registerHelper("inc", function(value, options) {
-	return parseInt(value) + 1;
-}); 
-
-app.engine("handlebars", exphbs({defaultLayout: "main"}));
-app.set("view engine", "handlebars");
-
 // Initialize Express
 var app = express();
 
@@ -34,6 +23,17 @@ app.use(bodyParser.urlencoded({
 // Make public a static dir
 app.use(express.static("public"));
 
+// Set Handlebars
+var exphbs = require("express-handlebars");
+var Handlebars = require("handlebars");
+
+Handlebars.registerHelper("inc", function(value, options) {
+	return parseInt(value) + 1;
+}); 
+
+app.engine("handlebars", exphbs({defaultLayout: "main"}));
+app.set("view engine", "handlebars");
+
 //Routes ----------------------------------------------------
 require("./routes/api-routes.js")(app);
 require("./routes/html-routes.js")(app);
@@ -41,9 +41,18 @@ require("./routes/html-routes.js")(app);
 const PORT = process.env.PORT || 3000;
 
 // Database configuration with mongoose
-mongoose.connect("mongodb://localhost/voguearticles");
+var databaseUri = "mongodb://localhost/voguearticles";
 var db = mongoose.connection;
 // mongodb://heroku_9tq7nf39:nr77kn3nlcsk6p68pqe0ue4q1s@ds143181.mlab.com:43181/heroku_9tq7nf39
+
+if(process.env.MONGODB_URI)
+{
+    mongoose.connect(process.env.MONGODB_URI);
+}
+else
+{
+    mongoose.connect(databaseUri);
+}
 
 // Show any mongoose errors
 db.on("error", function(error) {
