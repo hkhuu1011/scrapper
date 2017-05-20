@@ -9,7 +9,7 @@ body {
   padding-top: 5%;
 }
 
-#articles {
+.articles {
   display: inline-block;
   overflow: auto;
   width: 60%;
